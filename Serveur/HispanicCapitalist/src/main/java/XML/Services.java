@@ -89,6 +89,7 @@ public class Services {
             double argent = world.getMoney();
             world.setMoney(argent - product.getCout() * qtchange);
             product.setQuantite(qtchange);
+            verificationUnlocks(world, product);
         } else {
             product.setTimeleft(product.getVitesse());
             world.setLastupdate(System.currentTimeMillis());
@@ -112,7 +113,6 @@ public class Services {
         world.setMoney(world.getMoney() - manager.getSeuil());
         saveWordlToXml(username, world);
         return true;
-
     }
 
     private ProductType findProductById(World world, int id) {
@@ -127,12 +127,50 @@ public class Services {
         return retour;
     }
 
+    public boolean updateUpgrade(String username, PallierType pallier) {
+        World world = getWorld(username);
+        PallierType upgrade = findUpgradeByName(world, pallier);
+        if (upgrade == null) {
+            return false;
+        }
+        upgrade.setUnlocked(true);
+        ProductType product = findProductById(world, upgrade.getIdcible());
+        if (product == null) {
+            return false;
+        }
+        String type = upgrade.getTyperatio().value();
+        //si c est de type gain
+        if (type.equals("gain")) {
+            product.setRevenu(product.getRevenu() * upgrade.getRatio());
+        } //si c est de type vitesse
+        else if (type.equals("vitesse")) {
+            product.setVitesse((int) (product.getVitesse() * upgrade.getRatio()));
+            product.setTimeleft((long) (product.getTimeleft() / upgrade.getRatio()));
+        }
+        upgrade.setUnlocked(true);
+        world.setMoney(world.getMoney() - upgrade.getSeuil());
+        saveWordlToXml(username, world);
+        return true;
+    }
+
     private PallierType findManagerByName(World world, String name) {
         List<PallierType> lp = world.getManagers().getPallier();
         int size = lp.size();
         PallierType retour = null;
         for (int i = 0; i < size; i++) {
             if (lp.get(i).getName().equals(name)) {
+                retour = lp.get(i);
+            }
+        }
+        return retour;
+    }
+
+    private PallierType findUpgradeByName(World world, PallierType pallier) {
+        ProductType produit = findProductById(world, pallier.getIdcible());
+        List<PallierType> lp = produit.getPalliers().getPallier();
+        PallierType retour = null;
+        for (int i = 0; i < lp.size(); i++) {
+            if (lp.get(i).getName().equals(pallier.getName())) {
                 retour = lp.get(i);
             }
         }
@@ -159,7 +197,7 @@ public class Services {
             } else if (produit.getTimeleft() != 0 && produit.getTimeleft() < dif) {
                 monde.setScore(monde.getScore() + produit.getRevenu());
             } else {
-                produit.setTimeleft(produit.getTimeleft() - dif);
+                produit.setTimeleft(produit.getTimeleft() - dif * 1000);
             }
         }
         monde.setLastupdate(System.currentTimeMillis());
@@ -167,13 +205,29 @@ public class Services {
 
     private void verificationUnlocks(World monde, ProductType produit) {
         List<PallierType> lpa = produit.getPalliers().getPallier();
+        // on parcours la liste des unlocks pour le produit
         for (int i = 0; i < lpa.size(); i++) {
+            // si on a assez pour unlock
             if (produit.getQuantite() >= lpa.get(i).getSeuil()) {
-                lpa.get(i).setUnlocked(true);
+                // si ce n'etait aps deja unlock
+                if (!lpa.get(i).isUnlocked()) {
+                    String type = lpa.get(i).getTyperatio().value();
+                    //si c est de type gain
+                    if (type.equals("gain")) {
+                        produit.setRevenu(produit.getRevenu() * lpa.get(i).getRatio());
+                    } //si c est de type vitesse
+                    else if (type.equals("vitesse")) {
+                        produit.setVitesse((int) (produit.getVitesse() * lpa.get(i).getRatio()));
+                        produit.setTimeleft((long) (produit.getTimeleft() / lpa.get(i).getRatio()));
+                    }
+                    // on unlock
+                    lpa.get(i).setUnlocked(true);
+                }
             }
         }
         List<ProductType> lp = monde.getProducts().getProduct();
         int allnb = 0;
+        //on parcours nos produit pour savoir quel est notre seuil minimal
         for (int j = 0; j < lp.size(); j++) {
             if (j == 0) {
                 allnb = lp.get(j).getQuantite();
@@ -182,10 +236,30 @@ public class Services {
                 allnb = lp.get(j).getQuantite();
             }
         }
+        // on parcours maintenant la liste des allunlocks
         List<PallierType> lau = monde.getAllunlocks().getPallier();
-        for(int k=0;k<lau.size();k++){
-            if(lau.get(k).getSeuil()<=allnb){
-                lau.get(k).setUnlocked(true);
+        for (int k = 0; k < lau.size(); k++) {
+            // si on a assez pour unlock
+            if (lau.get(k).getSeuil() <= allnb) {
+                // si ce n etait pas deja unlock
+                if (!lau.get(k).isUnlocked()) {
+                    String type = lau.get(k).getTyperatio().value();
+                    // si cest un gain
+                    if (type.equals("gain")) {
+                        for (int l = 0; l < lpa.size(); l++) {
+                            lp.get(l).setRevenu(lp.get(l).getRevenu() * lau.get(k).getRatio());
+                        }
+                        produit.setRevenu(produit.getRevenu() * lau.get(k).getRatio());
+                        // si c est une vitesse
+                    } else if (type.equals("vitesse")) {
+                        for (int l = 0; l < lpa.size(); l++) {
+                            lp.get(l).setVitesse((int) (lp.get(l).getVitesse() * lau.get(k).getRatio()));
+                            lp.get(l).setTimeleft((long) (lp.get(l).getTimeleft() / lau.get(k).getRatio()));
+                        }
+                    }
+                    //on unlock
+                    lau.get(k).setUnlocked(true);
+                }
             }
         }
     }

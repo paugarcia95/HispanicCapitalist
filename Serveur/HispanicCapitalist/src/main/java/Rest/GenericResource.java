@@ -74,6 +74,7 @@ public class GenericResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void putUpgrade(String json) {
         PallierType pallier = new Gson().fromJson(json, PallierType.class);
+        service.updateUpgrade("Michel",pallier);
     }
 
     @PUT
