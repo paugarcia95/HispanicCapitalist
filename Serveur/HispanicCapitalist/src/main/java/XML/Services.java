@@ -257,7 +257,6 @@ public class Services {
                             lp.get(l).setTimeleft((long) (lp.get(l).getTimeleft() / lau.get(k).getRatio()));
                         }
                     }
-                    //on unlock
                     lau.get(k).setUnlocked(true);
                 }
             }
