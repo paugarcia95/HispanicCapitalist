@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Hispanic Capitalist</title>
+    <title id="worldTitle">Welcome to Hispanic Capitalist</title>
     <style>body{border:1pxsolid red;}</style>
     <!-- Bootstrap -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -14,7 +14,7 @@
     <div class="container">
         <div class="col-sm-3 col-md-2 sidebar text-center">
             <ul class="nav nav-sidebar">
-                <li><img src="sombrero.png"></li>
+                 <li><img src="sombrero.png"></li>
                 <li><button class="buttonleft btn btn-lg btn-primary" data-toggle="modal" data-target="#unlocks" id="unlocksbutton">Unlocks</button></li>
                 <li><button class="buttonleft btn btn-lg btn-success" data-toggle="modal" data-target="#upgrades" id="upgradesbutton">Cash Upgrades</button></li>
                 <li><button type="button" class="btn btn-lg btn-info">Angel Upgrades</button></li>
@@ -26,26 +26,26 @@
         <div class="col-md-10 col-md-offset-2 main">
             <div class="page-header">
                 <h1>Bienvenue sur Hispanic Capitalist !</h1>
-                <p class="lead">Vous avez : <strong>0</strong> Pesos</p>
+                <p class="lead">Vous avez : <strong id="pesos">0</strong> Pesos</p>
             </div>
             <h3>Produits</h3>
             <p>Achetez pleins d'oranges ! <strong> C'est bon pour la santé wallah.</strong>.</p>
             <div class="row">
                 <div class="col-md-6">
                     <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des oranges</button></p>
+                    <img src="sombrero.png" class="logo" ><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des oranges</button>
                      <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des sombreros</button></p>
+                    <img src="sombrero.png" class="logo"><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des sombreros</button>
                      <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter du Pata Negra</button></p>
+                    <img src="sombrero.png" class="logo" ><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter du Pata Negra</button>
                 </div>
                 <div class="col-md-6">
                      <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des mariachis</button></p>
+                    <img src="sombrero.png" class="logo"><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des mariachis</button>
                      <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des arènes de corrida</button></p>
+                    <img src="sombrero.png" class="logo"><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des arènes de corrida</button>
                      <div class="progress"><div class="bar">0%</div></div>
-                    <p><img src="sombrero.png" ><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des conquistadors</button></p>
+                    <img src="sombrero.png" class="logo"><div class="quantite">10</div><button type="button" class="btn btn-lg btn-warning" onclick='move()'>Acheter des conquistadors</button>
                 </div>
             </div>
         </div>
@@ -164,6 +164,7 @@
                             <p>Produit du manager</p>
                             <p>Coût</p></td>
                             <td><button type="button" class="btn btn-lg btn-warning" id="managerButton" onclick='clickManager()'>Hire!</button></td>
+
                         </tr>
                         </table>
                     </div>
@@ -175,7 +176,6 @@
                 </div>
             </div>
         </div>
-
     </div> <!-- /container -->
     
 <div class="template">
@@ -187,14 +187,44 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
-   
+    <!-- import progress bar -->
+    <script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.5.6/dist/progressbar.js"></script>
+    
     <!-- http://stackoverflow.com/questions/13658236/get-clicked-class-index-javascript -->
     <!-- http://stackoverflow.com/questions/19092219/get-clicked-buttons-id-by-class-name-without-jquery -->
     
     <script>
-    var serveurUrl ="http://localhost:8080/Hispanic_Capitalist/";  
+    var serveurUrl ="http://localhost:8080/Hispanic_Capitalist/";    
     var currentWorld;
-    /* function move() { 
+    var element;
+    
+    $(document).ready(function(){
+        $.getJSON(serveurUrl + "webresources/generic/World",function (World){
+            currentWorld = World;
+            element = document.getElementById("worldTitle");
+            element.textContent = currentWorld.name;
+            element = document.getElementById("pesos");
+            element.textContent = currentWorld.money;
+            
+            // alert(currentWorld.name);
+            //remplir layout avec infos globales
+            //$.each(World.products.product, function (index, product) {      
+            //remplir layout avec infos produit
+            //});
+        });
+    });
+    
+    /*
+    $(".logo").click(function (event){
+        var id = $(this).parents(".product").attr("id").substr(1)-1;
+        var product = currentworld.products.product[id];
+    });
+    */
+    
+    //Pour la progress bar : mettre bouton + bar dans meme div "produit" avec un
+    //id au lieu de faire un id pour tout le monde et checker le parent de bar et button pour appliquer les actrions
+    
+    /*function move() { 
         var elem_bar = document.getElementsByClassName('bar');
         var elem_button = document.getElementsByClassName('btn btn-lg btn-warning');
         var width = 10;
@@ -236,7 +266,7 @@
         
         //alert("HOSAL");
     }
-    
+
     </script>
   </body>
 </html>
