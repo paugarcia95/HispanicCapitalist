@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import generated.PallierType;
 import generated.ProductType;
 import generated.World;
-import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -46,7 +45,7 @@ public class GenericResource {
     }
 
     @GET
-    @Path("World")
+    @Path("World1")
     @Produces(MediaType.APPLICATION_JSON)
     public String getJson(/*@Context HttpServletRequest request*/) {
         // String username = request.getHeader("X-user");
@@ -56,15 +55,17 @@ public class GenericResource {
     @PUT
     @Path("Product")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void putProduct(String json) {
+    public void putProduct(String json/*,@Context HttpServletRequest request*/) {
+        // String username = request.getHeader("X-user");
         ProductType produit = new Gson().fromJson(json, ProductType.class);
-        service.updateProduct("Michel", produit);
+        service.updateProduct("killian", produit);
     }
-
+//
     @PUT
     @Path("Manager")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void putManager(String json) {
+    public void putManager(String json/*,@Context HttpServletRequest request*/) {
+        // String username = request.getHeader("X-user");
         PallierType pallier = new Gson().fromJson(json, PallierType.class);
         service.updateManager("Michel", pallier);
     }
@@ -72,7 +73,8 @@ public class GenericResource {
     @PUT
     @Path("Upgrade")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void putUpgrade(String json) {
+    public void putUpgrade(String json/*,@Context HttpServletRequest request*/) {
+        // String username = request.getHeader("X-user");
         PallierType pallier = new Gson().fromJson(json, PallierType.class);
         service.updateUpgrade("Michel",pallier);
     }
@@ -80,13 +82,16 @@ public class GenericResource {
     @PUT
     @Path("AngelUpgrade")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void putAngelUpgrade(String json) {
+    public void putAngelUpgrade(String json/*,@Context HttpServletRequest request*/) {
+        // String username = request.getHeader("X-user");
         PallierType pallier = new Gson().fromJson(json, PallierType.class);
+        service.updateAngelUpgrade("Michel", pallier);
     }
 
     @DELETE
     @Path("World")
-    public void deleteWorld() {
-        
+    public void deleteWorld(/*@Context HttpServletRequest request*/) {
+        // String username = request.getHeader("X-user");
+        service.resetWorld("Michel");
     }
 }
