@@ -127,8 +127,9 @@ public class Services {
         int qtchange = newproduct.getQuantite() - product.getQuantite();
         if (qtchange > 0) {
             double argent = world.getMoney();
-            world.setMoney(argent - product.getCout() * qtchange);
+            world.setMoney(argent - (product.getCout()*Math.pow(product.getCroissance(),qtchange)));
             product.setQuantite(product.getQuantite() + qtchange);
+            product.setCout(product.getCout()*Math.pow(product.getCroissance(),product.getQuantite()));
             verificationUnlocks(world, product);
         } else {
             product.setTimeleft(product.getVitesse());
@@ -353,5 +354,6 @@ public class Services {
         monde.setScore(score);
         monde.setTotalangels(totala);
         monde.setActiveangels(angel);
+        saveWordlToXml(username, monde);
     }
 }
